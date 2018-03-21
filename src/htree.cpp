@@ -144,7 +144,7 @@ void reduce_leafs(std::vector<digest_array> & old_digests, std::vector<digest_ar
     const std::size_t old_digest_size = old_digests.size() * bytes_per_digest;
     const std::size_t new_size = (old_digest_size)  / block_size + (  ((old_digest_size)  % block_size) ? 1 : 0);
 
-    std::cerr << " - pass with    " << old_digests.size() << " objects " << std::endl;
+   // std::cerr << " - pass with    " << old_digests.size() << " objects " << std::endl;
 
     if(old_digests.size() == 1){
         old_digests.swap(new_digests);
@@ -181,10 +181,10 @@ int main(int argc, char** argv){
         const std::string filename(argv[1]);
         check_file_exist(filename);
 
-        std::cerr << " - compute blake2 merkle-tree " << std::endl;
+        //std::cerr << " - compute blake2 merkle-tree " << std::endl;
         const std::size_t total_size = get_file_size(filename);
 
-        std::cerr << " - file size " << total_size << std::endl;
+        //std::cerr << " - file size " << total_size << std::endl;
 
         const std::size_t blocks = total_size / block_size + ( (total_size % block_size) ? 1 : 0 );
 
