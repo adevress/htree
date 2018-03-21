@@ -38,6 +38,7 @@
 
 #include <digestpp.hpp>
 
+namespace fmt = hadoken::format;
 
 using namespace digestpp;
 
@@ -55,7 +56,7 @@ void print_help(const char * argv){
 
 void check_file_exist(const std::string & filename){
     if(access(filename.c_str(), R_OK) != 0){
-       throw std::system_error(errno, std::generic_category(),hadoken::scat("file ", filename));
+       throw std::system_error(errno, std::generic_category(),fmt::scat("file ", filename));
     }
 
 }
@@ -82,7 +83,7 @@ std::size_t get_file_size(const std::string & filename ){
 
     struct stat st;
     if(stat(filename.c_str(), &st) != 0){
-       throw std::system_error(errno, std::generic_category(),hadoken::scat("file ", filename));
+       throw std::system_error(errno, std::generic_category(),fmt::scat("file ", filename));
     }
     return st.st_size;
 }
@@ -107,7 +108,7 @@ int open_filename(const std::string & filename){
     int fd = open(filename.c_str(), O_RDONLY);
 
     if(fd < 0){
-        throw std::system_error(errno, std::generic_category(), hadoken::scat("Unable to open", filename));
+        throw std::system_error(errno, std::generic_category(), fmt::scat("Unable to open", filename));
     }
     return fd;
 }
@@ -125,7 +126,7 @@ void compute_leafs(std::vector<digest_array> & digests, int fd){
                 if(errno == EINTR || errno == EAGAIN){
                     continue;
                 }
-                throw std::system_error(errno, std::generic_category(), hadoken::scat("pread error"));
+                throw std::system_error(errno, std::generic_category(), fmt::scat("pread error"));
             }else{
                 hasher_type my_hash(256);
                 my_hash.absorb(buffer.data(), nbytes);
@@ -196,7 +197,7 @@ int main(int argc, char** argv){
         reduce_leafs(leafs, result);
 
         if(result.size() != 1){
-            throw std::invalid_argument(hadoken::scat("Invalid tree root ", result.size()));
+            throw std::invalid_argument(fmt::scat("Invalid tree root ", result.size()));
         }
 
         std::cout << byte_to_hex_str(result[0]) << " " << filename << std::endl;;
