@@ -118,9 +118,9 @@ int open_filename(const std::string & filename){
     return fd;
 }
 
-void compute_leafs(std::vector<digest_array> & digests, int fd){
+void compute_leafs(std::vector<digest_array> & digests, int fd, std::size_t file_size){
 
-    hadoken::parallel::for_each(hadoken::parallel::par, digests.begin(), digests.end(), [&](digest_array & d){
+     auto digest_elem = [&](digest_array & d){
         std::vector<char> buffer(block_size);
 
         do{
@@ -142,7 +142,14 @@ void compute_leafs(std::vector<digest_array> & digests, int fd){
         }while(1);
 
        // std::cout << byte_to_hex_str(d) << " ";
-    });
+    };
+
+
+    if(file_size < block_size){
+        hadoken::parallel::for_each(hadoken::parallel::seq, digests.begin(), digests.end(), digest_elem);
+    }else{
+        hadoken::parallel::for_each(hadoken::parallel::par, digests.begin(), digests.end(), digest_elem);
+    }
 }
 
 
@@ -197,7 +204,7 @@ int main(int argc, char** argv){
         std::vector<digest_array> leafs(blocks), result;
         int fd = open_filename(filename);
 
-        compute_leafs(leafs, fd);
+        compute_leafs(leafs, fd, total_size);
 
         reduce_leafs(leafs, result);
 

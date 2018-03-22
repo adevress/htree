@@ -7,6 +7,8 @@ set(HTREE_VERSION_MAJOR "1")
 set(HTREE_VERSION_MINOR "0")
 
 
+option(HTREE_STATIC_BUILD "Enable or disable htree static binary" OFF)
+
 add_definitions( -DHTREE_VERSION_MAJOR=\"${HTREE_VERSION_MAJOR}\" -DHTREE_VERSION_MINOR=\"${HTREE_VERSION_MINOR}\")
 
 
@@ -26,6 +28,12 @@ include(DetectCXX11Support)
 find_package(OpenMP)
 if(OpenMP_CXX_FOUND)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+
+if(HTREE_STATIC_BUILD)
+        set(HTREE_STATIC_PREFIX "STATIC_")
+        set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS )
+        set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS " -static -static-libgcc -static-libstdc++")
 endif()
 
 
