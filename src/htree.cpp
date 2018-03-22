@@ -85,6 +85,11 @@ std::size_t get_file_size(const std::string & filename ){
     if(stat(filename.c_str(), &st) != 0){
        throw std::system_error(errno, std::generic_category(),fmt::scat("file ", filename));
     }
+
+    if(S_ISDIR(st.st_mode)){
+        throw std::system_error(EISDIR, std::generic_category(), fmt::scat("file ", filename));
+    }
+
     return st.st_size;
 }
 
