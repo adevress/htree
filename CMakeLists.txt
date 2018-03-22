@@ -40,6 +40,7 @@ file(GLOB HTREE_HEADERS_2 "${CMAKE_CURRENT_SOURCE_DIR}/include/htree/*/*.hpp")
 
 set(htree_version_src "${CMAKE_CURRENT_SOURCE_DIR}/src/htree.cpp")
 add_executable(htree ${htree_version_src} ${HTREE_HEADERS_1} ${HTREE_HEADERS_2})
+install(TARGETS htree DESTINATION ${BIN_INSTALL_DIR}/)
 
 
 
