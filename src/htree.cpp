@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <numeric>
 
 
 #include <unistd.h>
@@ -120,12 +121,14 @@ int open_filename(const std::string & filename){
 
 void compute_leafs(std::vector<digest_array> & digests, int fd, std::size_t file_size){
 
-     auto digest_elem = [&](digest_array & d){
+    #pragma omp parallel for
+    for(std::size_t offset_id =0; offset_id < digests.size(); ++offset_id){
+   //  auto digest_elem = [&](std::size_t offset_id){
         std::vector<char> buffer(block_size);
 
         do{
-            const std::size_t offset =  std::ptrdiff_t(&d - digests.data());
-            ssize_t nbytes = pread(fd,buffer.data(), block_size, offset);
+            std::size_t offset = offset_id * block_size;
+            ssize_t nbytes = pread(fd, buffer.data(), block_size, offset);
 
             if(nbytes < 0){
                 if(errno == EINTR || errno == EAGAIN){
@@ -135,21 +138,23 @@ void compute_leafs(std::vector<digest_array> & digests, int fd, std::size_t file
             }else{
                 hasher_type my_hash(256);
                 my_hash.absorb(buffer.data(), nbytes);
-                my_hash.digest((unsigned char*)d.data(), d.size());
+                my_hash.digest((unsigned char*) digests[offset_id].data(), digests[offset_id].size());
                 break;
             }
 
         }while(1);
 
        // std::cout << byte_to_hex_str(d) << " ";
-    };
+    }
 
+   /*  std::vector<std::size_t> index(digests.size());
+     std::iota(index.begin(), index.end(), std::size_t(0));
 
     if(file_size < block_size){
-        hadoken::parallel::for_each(hadoken::parallel::seq, digests.begin(), digests.end(), digest_elem);
+        hadoken::parallel::for_each(hadoken::parallel::seq, index.begin(), index.end(), digest_elem);
     }else{
-        hadoken::parallel::for_each(hadoken::parallel::par, digests.begin(), digests.end(), digest_elem);
-    }
+        hadoken::parallel::for_each(hadoken::parallel::par, index.begin(), index.end(), digest_elem);
+    }*/
 }
 
 

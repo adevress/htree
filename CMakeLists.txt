@@ -42,6 +42,8 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_VECTORIZE}")
 
+#set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread")
+
 file(GLOB HTREE_HEADERS_1 "${CMAKE_CURRENT_SOURCE_DIR}/include/htree/*.hpp")
 file(GLOB HTREE_HEADERS_2 "${CMAKE_CURRENT_SOURCE_DIR}/include/htree/*/*.hpp")
 
