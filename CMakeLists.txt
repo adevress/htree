@@ -23,12 +23,7 @@ include(DefineInstallationPaths)
 include(ReleaseDebugAutoFlags)
 include(DetectCXX11Support)
 
-
-## Dependencies
-find_package(OpenMP)
-if(OpenMP_CXX_FOUND)
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
+find_package(Threads)
 
 if(HTREE_STATIC_BUILD)
         set(HTREE_STATIC_PREFIX "STATIC_")
@@ -42,7 +37,7 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_VECTORIZE}")
 
-#set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread")
+#set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=undefined -fsanitize=object-size")
 
 file(GLOB HTREE_HEADERS_1 "${CMAKE_CURRENT_SOURCE_DIR}/include/htree/*.hpp")
 file(GLOB HTREE_HEADERS_2 "${CMAKE_CURRENT_SOURCE_DIR}/include/htree/*/*.hpp")
@@ -50,6 +45,7 @@ file(GLOB HTREE_HEADERS_2 "${CMAKE_CURRENT_SOURCE_DIR}/include/htree/*/*.hpp")
 
 set(htree_version_src "${CMAKE_CURRENT_SOURCE_DIR}/src/htree.cpp")
 add_executable(htree ${htree_version_src} ${HTREE_HEADERS_1} ${HTREE_HEADERS_2})
+target_link_libraries(htree ${CMAKE_THREAD_LIBS_INIT})
 install(TARGETS htree DESTINATION ${BIN_INSTALL_DIR}/)
 
 

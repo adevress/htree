@@ -25,6 +25,7 @@
 #include <cstring>
 #include <fstream>
 #include <numeric>
+#include <future>
 
 
 #include <unistd.h>
@@ -34,7 +35,7 @@
 
 
 #include <hadoken/format/format.hpp>
-#include <hadoken/parallel/algorithm.hpp>
+
 
 
 #include <digestpp.hpp>
@@ -119,11 +120,12 @@ int open_filename(const std::string & filename){
     return fd;
 }
 
+
 void compute_leafs(std::vector<digest_array> & digests, int fd, std::size_t file_size){
 
-    #pragma omp parallel for
-    for(std::size_t offset_id =0; offset_id < digests.size(); ++offset_id){
-   //  auto digest_elem = [&](std::size_t offset_id){
+
+   //for(std::size_t offset_id =0; offset_id < digests.size(); ++offset_id){
+   auto digest_elem = [&](std::size_t offset_id){
         std::vector<char> buffer(block_size);
 
         do{
@@ -137,7 +139,7 @@ void compute_leafs(std::vector<digest_array> & digests, int fd, std::size_t file
                 throw std::system_error(errno, std::generic_category(), fmt::scat("pread error"));
             }else{
                 hasher_type my_hash(256);
-                my_hash.absorb(buffer.data(), nbytes);
+                my_hash.absorb(buffer.data(), std::size_t(nbytes));
                 my_hash.digest((unsigned char*) digests[offset_id].data(), digests[offset_id].size());
                 break;
             }
@@ -145,16 +147,39 @@ void compute_leafs(std::vector<digest_array> & digests, int fd, std::size_t file
         }while(1);
 
        // std::cout << byte_to_hex_str(d) << " ";
-    }
+    };
 
-   /*  std::vector<std::size_t> index(digests.size());
-     std::iota(index.begin(), index.end(), std::size_t(0));
+   std::vector<std::size_t> index(digests.size());
+   std::iota(index.begin(), index.end(), std::size_t(0));
+
 
     if(file_size < block_size){
-        hadoken::parallel::for_each(hadoken::parallel::seq, index.begin(), index.end(), digest_elem);
+        std::for_each(index.begin(), index.end(), digest_elem);
     }else{
-        hadoken::parallel::for_each(hadoken::parallel::par, index.begin(), index.end(), digest_elem);
-    }*/
+
+        std::size_t nb_threads(std::thread::hardware_concurrency());
+        nb_threads = std::min(nb_threads, index.size());
+
+        const std::size_t block_per_thread = index.size() / nb_threads;
+
+        std::vector<std::future<void>> futures;
+        for(std::size_t tid  = 0; tid < nb_threads; ++tid){
+
+            futures.emplace_back(std::async(std::launch::async, [tid,&digest_elem,block_per_thread,nb_threads,&index]{
+
+                const std::size_t offset = block_per_thread * tid;
+                const std::size_t nb_elem =  ((tid +1 == nb_threads) ? (index.size() - offset) : block_per_thread);
+
+                for(std::size_t i = offset; i < (offset + nb_elem); ++i){
+                    digest_elem(i);
+                }
+            }));
+        }
+
+        for(auto & f : futures){
+            f.wait();
+        }
+    }
 }
 
 
