@@ -229,7 +229,8 @@ int main(int argc, char** argv){
 
         //std::cerr << " - file size " << total_size << std::endl;
 
-        const std::size_t blocks = total_size / block_size + ( (total_size % block_size) ? 1 : 0 );
+        const std::size_t blocks = total_size / block_size + ( (total_size % block_size || total_size == 0) ? 1 : 0 );
+
 
         std::vector<digest_array> leafs(blocks), result;
         int fd = open_filename(filename);
