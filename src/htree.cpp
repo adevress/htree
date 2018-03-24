@@ -126,7 +126,7 @@ void compute_leafs(std::vector<digest_array> & digests, int fd, std::size_t file
 
    //for(std::size_t offset_id =0; offset_id < digests.size(); ++offset_id){
    auto digest_elem = [&](std::size_t offset_id){
-        std::vector<char> buffer(block_size);
+        thread_local std::vector<char> buffer(block_size);
 
         do{
             std::size_t offset = offset_id * block_size;
