@@ -115,7 +115,7 @@ int open_filename(const std::string & filename){
     int fd = open(filename.c_str(), O_RDONLY);
 
     if(fd < 0){
-        throw std::system_error(errno, std::generic_category(), fmt::scat("Unable to open", filename));
+        throw std::system_error(errno, std::generic_category(), fmt::scat("Unable to open ", filename, ""));
     }
     return fd;
 }
@@ -243,29 +243,30 @@ void hash_for_file(const std::string & filename, Callback digest_cb){
 
 int main(int argc, char** argv){
 
-
+    int ret = 0;
     if(argc <  2){
         print_help(argv[0]);
         exit(1);
     }
 
 
-    try{
-
-        for(int i =1; i < argc; ++i){
+    for(int i =1; i < argc; ++i){
+        try{
             const std::string filename(argv[i]);
 
             hash_for_file(filename, [&filename](const digest_array & result){
                 std::cout << byte_to_hex_str(result) << " " << filename << "\n";
             });
-        }
-        std::flush(std::cout);
 
-    }catch(std::exception & e){
-        std::cerr << "Error: "<< e.what() << std::endl;
-        return -1;
+        }catch(std::exception & e){
+            std::cerr << argv[0] << ": "<< e.what() << std::endl;
+            ret = 1;
+        }
     }
-    return 0;
+    std::flush(std::cout);
+
+
+    return ret;
 }
 
 
