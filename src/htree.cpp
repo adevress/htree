@@ -81,10 +81,10 @@ std::string byte_to_hex_str(const T & byte_array)
 }
 
 
-std::size_t get_file_size(const std::string & filename ){
+std::size_t get_file_size(int fd, const std::string & filename){
 
     struct stat st;
-    if(stat(filename.c_str(), &st) != 0){
+    if(fstat(fd, &st) != 0){
        throw std::system_error(errno, std::generic_category(),fmt::scat("file ", filename));
     }
 
@@ -211,39 +211,55 @@ void reduce_leafs(std::vector<digest_array> & old_digests, std::vector<digest_ar
 }
 
 
+template<typename Callback>
+void hash_for_file(const std::string & filename, Callback digest_cb){
+    //check_file_exist(filename);
+
+    //std::cerr << " - compute blake2 merkle-tree " << std::endl;
+    int fd = open_filename(filename);
+
+    const std::size_t total_size = get_file_size(fd, filename);
+
+    //std::cerr << " - file size " << total_size << std::endl;
+
+    const std::size_t blocks = total_size / block_size + ( (total_size % block_size || total_size == 0) ? 1 : 0 );
+
+
+    std::vector<digest_array> leafs(blocks), result;
+
+
+    compute_leafs(leafs, fd, total_size);
+
+    close(fd);
+
+    reduce_leafs(leafs, result);
+
+    if(result.size() != 1){
+        throw std::invalid_argument(fmt::scat("Invalid tree root ", result.size()));
+    }
+
+    digest_cb(result[0]);
+}
+
 int main(int argc, char** argv){
 
 
-    if(argc !=  2){
+    if(argc <  2){
         print_help(argv[0]);
         exit(1);
     }
 
 
     try{
-        const std::string filename(argv[1]);
-        check_file_exist(filename);
 
-        //std::cerr << " - compute blake2 merkle-tree " << std::endl;
-        const std::size_t total_size = get_file_size(filename);
+        for(int i =1; i < argc; ++i){
+            const std::string filename(argv[i]);
 
-        //std::cerr << " - file size " << total_size << std::endl;
-
-        const std::size_t blocks = total_size / block_size + ( (total_size % block_size || total_size == 0) ? 1 : 0 );
-
-
-        std::vector<digest_array> leafs(blocks), result;
-        int fd = open_filename(filename);
-
-        compute_leafs(leafs, fd, total_size);
-
-        reduce_leafs(leafs, result);
-
-        if(result.size() != 1){
-            throw std::invalid_argument(fmt::scat("Invalid tree root ", result.size()));
+            hash_for_file(filename, [&filename](const digest_array & result){
+                std::cout << byte_to_hex_str(result) << " " << filename << "\n";
+            });
         }
-
-        std::cout << byte_to_hex_str(result[0]) << " " << filename << std::endl;;
+        std::flush(std::cout);
 
     }catch(std::exception & e){
         std::cerr << "Error: "<< e.what() << std::endl;

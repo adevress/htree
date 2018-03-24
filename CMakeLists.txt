@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.0)
 enable_testing()
 
 set(HTREE_VERSION_MAJOR "1")
-set(HTREE_VERSION_MINOR "0")
+set(HTREE_VERSION_MINOR "1")
 
 
 option(HTREE_STATIC_BUILD "Enable or disable htree static binary" OFF)
