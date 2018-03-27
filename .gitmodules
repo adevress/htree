@@ -1,3 +1,6 @@
 [submodule "deps/digestpp"]
 	path = deps/digestpp
 	url = https://github.com/kerukuro/digestpp
+[submodule "deps/hadoken"]
+	path = deps/hadoken
+	url = https://github.com/adevress/hadoken
