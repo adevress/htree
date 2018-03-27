@@ -36,7 +36,9 @@ sys	0m0,192s
 
 ## ALGORITHM
 
-htree uses by default a decomposition in 16MiB block size and a [Merkle tree](https://en.wikipedia.org/wiki/Merkle_tree) associated with the [blake2b](https://en.wikipedia.org/wiki/BLAKE_(hash_function)) hash function.
+Most hashing function beings purely sequential, htree uses by default a decomposition in 16MiB block size and a [Merkle tree](https://en.wikipedia.org/wiki/Merkle_tree) to acheive parallelism.
+
+The default hash function used by htree is the SHA-3 candidate [blake2b](https://en.wikipedia.org/wiki/BLAKE_(hash_function)).
 
 The implementation of htree is simple and fits in a single < 300 lines file.
 
