@@ -13,7 +13,7 @@ This make significantly faster the creation of checksum for large files.
 
 ## ALGORITHM
 
-htree uses by default a decomposition in 16MiB block size and a (Merkle tree)[https://en.wikipedia.org/wiki/Merkle_tree] associated with the (blake2b)[https://en.wikipedia.org/wiki/BLAKE_(hash_function)] hash function.
+htree uses by default a decomposition in 16MiB block size and a [Merkle tree](https://en.wikipedia.org/wiki/Merkle_tree) associated with the [blake2b](https://en.wikipedia.org/wiki/BLAKE_(hash_function)) hash function.
 
 The implementation of htree is simple and fits in a single < 300 lines file.
 
@@ -22,7 +22,7 @@ The implementation of htree is simple and fits in a single < 300 lines file.
 
 None. C++11 compatible compiler
 
-Embedded component : (hadoken)[https://github.com/adevress/hadoken], (digestpp)[https://github.com/kerukuro/digestpp]
+Embedded component : [hadoken](https://github.com/adevress/hadoken), [digestpp](https://github.com/kerukuro/digestpp)
 
 
 ## LICENSE
