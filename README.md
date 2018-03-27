@@ -2,7 +2,7 @@
 
 ## SUMMARY
 
-htree computes checksum of files in parallel using Merkle Tree and fixed block size. 
+htree is a message digest tool (like md5sum, sha256sum) but fully multi-threaded.
 
 This make significantly faster the creation of checksum for large files.
 
@@ -13,7 +13,7 @@ This make significantly faster the creation of checksum for large files.
 
 ## ALGORITHM
 
-htree uses by default a decomposition in 16MiB block size and a (Merkle tree)[https://en.wikipedia.org/wiki/Merkle_tree] associated with the (blake2b)[https://en.wikipedia.org/wiki/BLAKE_(hash_function)] hashing algorithm.
+htree uses by default a decomposition in 16MiB block size and a (Merkle tree)[https://en.wikipedia.org/wiki/Merkle_tree] associated with the (blake2b)[https://en.wikipedia.org/wiki/BLAKE_(hash_function)] hash function.
 
 The implementation of htree is simple and fits in a single < 300 lines file.
 
