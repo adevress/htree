@@ -51,8 +51,8 @@ typedef std::array<char, bytes_per_digest> digest_array;
 constexpr std::size_t block_size = 1 << 24;  // 16Ki
 
 
-void print_help(const char * argv){
-    std::cout << "Usage: " << argv << " [file]" << std::endl;
+void print_help(const char * progname){
+    std::cerr << "Usage: " << progname << " [file]" << std::endl;
 }
 
 
@@ -255,7 +255,7 @@ int main(int argc, char** argv){
             const std::string filename(argv[i]);
 
             hash_for_file(filename, [&filename](const digest_array & result){
-                std::cout << byte_to_hex_str(result) << " " << filename << "\n";
+                std::cout << byte_to_hex_str(result) << " " << filename << std::endl;
             });
 
         }catch(std::exception & e){
