@@ -35,6 +35,7 @@
 
 
 #include <hadoken/format/format.hpp>
+#include <hadoken/executor/thread_pool_executor.hpp>
 
 
 
@@ -157,27 +158,20 @@ void compute_leafs(std::vector<digest_array> & digests, int fd, std::size_t file
         std::for_each(index.begin(), index.end(), digest_elem);
     }else{
 
-        std::size_t nb_threads(std::thread::hardware_concurrency());
-        nb_threads = std::min(nb_threads, index.size());
-
-        const std::size_t block_per_thread = index.size() / nb_threads;
+        hadoken::thread_pool_executor executor(std::thread::hardware_concurrency());
 
         std::vector<std::future<void>> futures;
-        for(std::size_t tid  = 0; tid < nb_threads; ++tid){
+        futures.reserve(index.size());
 
-            futures.emplace_back(std::async(std::launch::async, [tid,&digest_elem,block_per_thread,nb_threads,&index]{
-
-                const std::size_t offset = block_per_thread * tid;
-                const std::size_t nb_elem =  ((tid +1 == nb_threads) ? (index.size() - offset) : block_per_thread);
-
-                for(std::size_t i = offset; i < (offset + nb_elem); ++i){
-                    digest_elem(i);
-                }
+        for(auto i : index){
+            futures.emplace_back(executor.twoway_execute([&digest_elem, i]() -> void{
+                digest_elem(i);
             }));
         }
 
+
         for(auto & f : futures){
-            f.wait();
+            f.get();
         }
     }
 }
